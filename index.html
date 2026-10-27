@@ -1,1 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lab TJKT - Belajar Lewat Praktik</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#E9EEF2;--panel:#F8FAFC;--ink:#1F3142;--muted:#5B6E80;--rule:#C3D0DC;--head:#3E5A73;--head-ink:#EEF3F7;--signal:#4A88B8;--ok:#2E7D5B;--bad:#B3402F;--term:#16222E;--sans:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+:root[data-theme="dark"]{--bg:#141E28;--panel:#1B2834;--ink:#E4ECF3;--muted:#9BB0C2;--rule:#2F4254;--head:#0F1923;--head-ink:#E4ECF3;--signal:#6FA8D6;--ok:#5DBB8A;--bad:#E07A69;--term:#0C141C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141E28;--panel:#1B2834;--ink:#E4ECF3;--muted:#9BB0C2;--rule:#2F4254;--head:#0F1923;--head-ink:#E4ECF3;--signal:#6FA8D6;--ok:#5DBB8A;--bad:#E07A69;--term:#0C141C}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans)}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+header{background:var(--head);color:var(--head-ink);padding:calc(18px + env(safe-area-inset-top,0px)) 20px 16px}
+header .in{max-width:900px;margin:0 auto}
+header h1{margin:0;font-size:22px;font-weight:700}
+header p{margin:2px 0 0;opacity:.8;font-size:14px}
+.meter{height:4px;background:rgba(255,255,255,.2);margin-top:12px}
+.meter i{display:block;height:100%;width:0;background:var(--signal);transition:width .4s}
+.ptxt{font-size:13px;opacity:.85;margin-top:6px}
+nav{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--rule)}
+nav .in{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;gap:0 4px}
+nav button{flex:none;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:12px 14px;font:inherit;font-size:14px;cursor:pointer}
+nav button.on{color:var(--ink);border-bottom-color:var(--signal);font-weight:600}
+main{max-width:900px;margin:0 auto;padding:20px 20px 60px}
+section{display:none}
+section.on{display:block}
+.panel{background:var(--panel);border:1px solid var(--rule);padding:18px;margin:0 0 16px}
+h2{font-size:19px;margin:0 0 6px}
+h3{font-size:15px;margin:14px 0 4px}
+p{margin:6px 0;max-width:72ch}
+.muted{color:var(--muted);font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+input{font:inherit;padding:9px 10px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);min-width:0;border-radius:2px}
+input[type=number]{width:110px}
+.btn{font:inherit;background:var(--ink);color:var(--bg);border:0;padding:9px 14px;cursor:pointer;border-radius:2px}
+.btn.line{background:none;color:var(--ink);border:1px solid var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+.fb{margin-top:10px;font-weight:600;min-height:1.5em}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.mono{font-family:var(--mono)}
+.out{font-family:var(--mono);font-size:15px;margin-top:10px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;margin-top:10px;border-top:1px solid var(--rule)}
+.stats div{padding:10px 0;border-bottom:1px solid var(--rule)}
+.stats b{display:block;font-family:var(--mono);font-size:18px;font-weight:600;margin-top:2px}
+.pool,.seq{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.seq{min-height:52px;padding:8px;border:1px dashed var(--rule)}
+.sw{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:128px;padding:8px;background:var(--bg);border:1px solid var(--rule);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;text-align:left}
+.sw:disabled{opacity:.35;cursor:default}
+.sw i{display:block;width:100%;height:26px;border:1px solid #0002}
+.chip{font-family:var(--mono);font-size:13px;padding:6px 8px;border:1px solid var(--rule);background:var(--bg)}
+.term{background:var(--term);color:#D7E3EE;padding:14px;font:14px/1.6 var(--mono);min-height:200px;max-height:320px;overflow:auto;white-space:pre-wrap;border-radius:2px}
+.term-in{display:flex;gap:8px;margin-top:10px;align-items:center}
+.term-in .pr{font-family:var(--mono);white-space:nowrap;font-size:14px}
+.term-in input{flex:1;font-family:var(--mono)}
+.task{margin-top:10px;font-weight:600}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;background:var(--bg);border:1px solid var(--rule);color:var(--ink);padding:11px 12px;font:inherit;cursor:pointer;border-radius:2px}
+.opt.right{border-color:var(--ok);border-width:2px}
+.opt.wrong{border-color:var(--bad);border-width:2px}
+.opt:disabled{cursor:default}
+details{border-top:1px solid var(--rule);padding:12px 0}
+details:last-child{border-bottom:1px solid var(--rule)}
+summary{cursor:pointer;font-weight:600;font-size:16px}
+details p{margin:8px 0 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+td,th{border-bottom:1px solid var(--rule);padding:7px 6px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
+th{font-weight:600;color:var(--muted)}
+.reset{margin-top:8px}
+.qrow{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 0;border-bottom:1px solid var(--rule)}
+.qrow select{font:inherit;padding:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:2px}
+.qrow .fb{margin:0;min-width:110px}
+.field{margin-top:12px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.field input{width:100%}
+.check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px}
+.check input{width:auto}
+.htop{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.htop .hakun{flex:none}
+.htop h1{margin:0}
+.hakun{background:rgba(255,255,255,.14);color:var(--head-ink);border:1px solid rgba(255,255,255,.4);padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;border-radius:2px}
+@media (max-width:640px){main{padding:14px 12px 48px}header{padding:calc(14px + env(safe-area-inset-top,0px)) 14px 12px}header h1{font-size:19px}nav{position:static}nav button{padding:10px 8px;font-size:13px}.panel{padding:14px}h2{font-size:17px}.term{font-size:13px;padding:10px}.term-in{flex-wrap:wrap}.term-in .pr{width:100%}.term-in input,.term-in .btn{width:100%}.stats{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.sw{width:calc(50% - 4px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div class="htop">
+    <button class="hakun" id="btn-akun" onclick="go('s-akun')">Akun</button>
+    <div>
+      <h1>Lab TJKT</h1>
+      <p>Belajar praktik lewat web</p>
+    </div>
+  </div>
+  <div class="meter"><i id="pbar"></i></div>
+  <div class="ptxt" id="ptxt">Latihan selesai: 0/4</div>
+</div></header>
 
+<nav><div class="in">
+  <button data-s="s-beranda" class="on">Beranda</button>
+  <button data-s="s-teori">Teori</button>
+  <button data-s="s-ip" id="tab-ip" data-l="Latihan IP">Latihan IP</button>
+  <button data-s="s-kabel" id="tab-kabel" data-l="Kabel">Kabel</button>
+  <button data-s="s-cli" id="tab-cli" data-l="Terminal Cisco">Terminal Cisco</button>
+  <button data-s="s-ts" id="tab-ts" data-l="Troubleshooting">Troubleshooting</button>
+  <button data-s="s-nilai" id="tab-nilai">Nilai</button>
+  <button data-s="s-papan">Papan skor</button>
+</div></nav>
+
+<main>
+
+<section id="s-beranda" class="on">
+  <div class="panel">
+    <h2>Selamat datang di Lab TJKT</h2>
+    <p>Lab ini membantu kamu memahami dasar Teknik Jaringan Komputer dan Telekomunikasi sebelum berangkat PKL. Kamu tidak hanya membaca teori. Kamu juga langsung mencoba menghitung subnet, menyusun kabel, mengetik perintah di terminal Cisco, dan mendiagnosa gangguan jaringan.</p>
+    <h3>Cara belajar</h3>
+    <ol>
+      <li>Baca ringkasan materi di tab Teori.</li>
+      <li>Kerjakan setiap latihan sampai tuntas.</li>
+      <li>Lihat nilai dan saran belajar di tab Nilai.</li>
+      <li>Masuk papan skor jika nilai akhirmu 75 ke atas.</li>
+    </ol>
+    <div class="row"><button class="btn" onclick="go('s-teori')">Mulai dari teori</button><button class="btn line" onclick="go('s-ip')">Langsung latihan</button></div>
+  </div>
+  <div class="panel">
+    <h2>Isi lab</h2>
+    <table>
+      <tr><th>Bagian</th><th>Isinya</th></tr>
+      <tr><td>Teori</td><td>Ringkasan jaringan, OSI, IP, kabel, Cisco, telekomunikasi, dan K3</td></tr>
+      <tr><td>Latihan IP</td><td>Kalkulator subnet, konverter biner, dan kuis</td></tr>
+      <tr><td>Kabel</td><td>Susun warna T568A, T568B, straight-through, crossover, dan rollover</td></tr>
+      <tr><td>Terminal Cisco</td><td>Konfigurasi router dengan perintah sungguhan</td></tr>
+      <tr><td>Troubleshooting</td><td>10 skenario gangguan jaringan</td></tr>
+      <tr><td>Nilai</td><td>Nilai kemampuan dan saran belajar</td></tr>
+      <tr><td>Papan skor</td><td>Peringkat peserta dengan nilai bagus</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <h2>Akun</h2>
+    <p class="muted">Tekan tombol Akun di pojok kiri atas untuk masuk dengan akun claude.ai. Dengan akun, progresmu tersimpan dan bisa dibuka di perangkat lain.</p>
+  </div>
+</section>
+
+<section id="s-teori">
+  <div class="panel">
+    <h2>Ringkasan materi</h2>
+    <p class="muted">Klik setiap bagian untuk membaca ringkasannya. Setelah itu, lanjut ke latihan.</p>
+    <details open><summary>Jenis jaringan dan topologi</summary>
+      <p>Jaringan dibedakan menurut jangkauannya: PAN (beberapa meter), LAN (satu gedung), MAN (satu kota), dan WAN (antarkota hingga antarnegara). Topologi star paling umum karena mudah dirawat, sebab semua perangkat terhubung ke satu perangkat pusat.</p></details>
+    <details><summary>Model OSI</summary>
+      <p>Ada tujuh layer, dari bawah ke atas: Physical, Data Link, Network, Transport, Session, Presentation, dan Application. Switch bekerja di layer 2, sedangkan router bekerja di layer 3.</p></details>
+    <details><summary>Pengalamatan IP</summary>
+      <p>IPv4 berukuran 32 bit. Jumlah host yang bisa dipakai dihitung dengan 2^(32 - prefix) - 2. IP privat berada pada 10.0.0.0/8, 172.16.0.0/12, dan 192.168.0.0/16.</p></details>
+    <details><summary>Kabel dan konektor</summary>
+      <p>Cat5e mendukung 1 Gbps hingga 100 meter. Standar T568B dipakai untuk straight-through, yaitu kabel yang menghubungkan PC ke switch. Crossover memakai T568A di satu ujung dan T568B di ujung lainnya.</p></details>
+    <details><summary>Perangkat dan CLI Cisco</summary>
+      <p>Prompt menunjukkan mode aktif: Router&gt; untuk user EXEC, Router# untuk privileged EXEC, dan Router(config)# untuk konfigurasi global. Gunakan enable, configure terminal, dan exit untuk berpindah mode.</p></details>
+    <details><summary>Telekomunikasi dasar</summary>
+      <p>Bandwidth adalah kapasitas, sedangkan bit rate adalah jumlah bit per detik. Paket 100 Mbps berarti kecepatan teoretis sekitar 12,5 MB per detik, karena 1 byte sama dengan 8 bit.</p></details>
+    <details><summary>K3 di lapangan</summary>
+      <p>Gunakan APD, matikan sumber listrik sebelum bekerja, gunakan harness di ketinggian, pakai gelang antistatik saat menangani perangkat, dan jangan menatap langsung ujung fiber yang aktif.</p></details>
+  </div>
+  <div class="panel">
+    <h2>Mulai latihan</h2>
+    <p class="muted">Empat latihan akan menandai progres kamu. Progres disimpan di browser ini.</p>
+    <div class="row"><button class="btn" onclick="go('s-ip')">Latihan IP</button>
+      <button class="btn line" onclick="go('s-kabel')">Kabel</button>
+      <button class="btn line" onclick="go('s-cli')">Terminal Cisco</button>
+      <button class="btn line" onclick="go('s-ts')">Troubleshooting</button></div>
+    <div class="reset"><button class="btn line" onclick="resetProg()">Hapus progres</button></div>
+  </div>
+</section>
+
+<section id="s-ip">
+  <div class="panel">
+    <h2>Kalkulator subnet</h2>
+    <p class="muted">Ubah prefix dan lihat hasilnya langsung.</p>
+    <div class="row"><label for="pfx">Prefix /</label><input id="pfx" type="number" min="8" max="30" value="26" oninput="calc()"></div>
+    <div id="calc"></div>
+  </div>
+  <div class="panel">
+    <h2>Konverter biner</h2>
+    <p class="muted">Masukkan alamat IPv4 untuk melihat bentuk biner setiap oktet.</p>
+    <div class="row"><input id="ipin" value="192.168.1.10" aria-label="Alamat IPv4" oninput="conv()"></div>
+    <div id="ipout" class="out"></div>
+  </div>
+  <div class="panel">
+    <h2>Kuis subnetting</h2>
+    <p class="muted">Lima soal acak. Dapatkan 4 jawaban benar untuk menandai latihan ini selesai.</p>
+    <div id="qbox"><button class="btn" onclick="qStart()">Mulai kuis</button></div>
+  </div>
+</section>
+
+<section id="s-kabel">
+  <div class="panel">
+    <h2>Susun warna kabel</h2>
+    <p class="muted">Pilih jenis kabel, lalu susun warna dari pin 1 sampai pin 8 untuk setiap ujung.</p>
+    <div class="row" id="kmodes">
+      <button class="btn line" data-m="b" onclick="kSetMode('b')">T568B</button>
+      <button class="btn line" data-m="a" onclick="kSetMode('a')">T568A</button>
+      <button class="btn line" data-m="straight" onclick="kSetMode('straight')">Straight-through</button>
+      <button class="btn line" data-m="cross" onclick="kSetMode('cross')">Crossover</button>
+      <button class="btn line" data-m="roll" onclick="kSetMode('roll')">Rollover</button>
+    </div>
+    <p id="kdesc" class="muted"></p>
+    <div id="kends"></div>
+    <div id="kfb" class="fb"></div>
+  </div>
+  <div class="panel">
+    <h2>Pilih jenis kabel</h2>
+    <p class="muted">Tentukan jenis kabel yang tepat untuk setiap pasangan perangkat. Selesaikan bagian ini dan bagian susun warna untuk menandai latihan selesai.</p>
+    <div id="kq"></div>
+    <div id="kqfb" class="fb"></div>
+  </div>
+</section>
+
+<section id="s-cli">
+  <div class="panel">
+    <h2>Konfigurasi router dari nol</h2>
+    <p class="muted">Ketik perintah Cisco sesuai tugas. Perintah boleh ditulis huruf kecil atau besar. Tekan Enter untuk mengirim.</p>
+    <div id="term" class="term"></div>
+    <form class="term-in" onsubmit="cliRun(event)" autocomplete="off">
+      <span id="cprompt" class="pr"></span>
+      <input id="cin" aria-label="Perintah" autocapitalize="off" spellcheck="false">
+      <button class="btn" type="submit">Kirim</button>
+    </form>
+    <div id="task" class="task"></div>
+    <div class="row"><button class="btn line" onclick="cliHelp()">Tampilkan perintah</button>
+      <button class="btn line" onclick="cliInit()">Mulai ulang</button></div>
+  </div>
+</section>
+
+<section id="s-ts">
+  <div class="panel">
+    <h2>Diagnosa masalah jaringan</h2>
+    <p class="muted">Ada 10 skenario dengan urutan dan pilihan jawaban yang diacak. Benar minimal 7 dari 10 untuk menyelesaikan latihan ini.</p>
+    <div id="tsbox"></div>
+  </div>
+</section>
+
+<section id="s-nilai">
+  <div class="panel" id="rapor"></div>
+</section>
+
+<section id="s-akun">
+  <div class="panel">
+    <h2>Akun kamu</h2>
+    <p id="akun-info" class="muted">Kamu belum masuk dengan akun claude.ai. Progres disimpan di browser ini.</p>
+    <p id="akun-status" class="fb"></p>
+  </div>
+  <div class="panel">
+    <h2>Profil</h2>
+    <p class="muted">Profil dipakai untuk menandai nilai dan menyusun saran belajar.</p>
+    <div class="field"><label for="pNama">Nama lengkap</label><input id="pNama" autocomplete="name"></div>
+    <div class="field"><label for="pSekolah">Sekolah dan kelas</label><input id="pSekolah"></div>
+    <div class="field"><label for="pTujuan">Tempat PKL yang dituju</label><input id="pTujuan"></div>
+    <div class="field"><label for="pPapan">Nama di papan skor (nama panggilan)</label><input id="pPapan" maxlength="24"></div>
+    <label class="check"><input type="checkbox" id="pTampil"> Tampilkan saya di papan skor</label>
+    <div class="row"><button class="btn" onclick="saveProfil()">Simpan profil</button></div>
+  </div>
+  <div class="panel">
+    <h2>Riwayat progres</h2>
+    <div id="akun-progres"></div>
+  </div>
+</section>
+
+<section id="s-papan">
+  <div class="panel">
+    <h2>Papan skor</h2>
+    <p class="muted">Peringkat peserta dengan nilai akhir 75 ke atas. Peserta masuk papan setelah menyelesaikan keempat latihan dan memilih tampil di papan skor pada profil.</p>
+    <div class="row"><button class="btn line" onclick="loadPapan()">Segarkan</button></div>
+    <p id="papan-status" class="fb muted"></p>
+    <div id="papan-list"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const KEY = 'tjkt-lab-progress';
+let prog = {};
+try { prog = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { prog = {}; }
+
+function go(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === id));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
+  if (id === 's-nilai') renderRapor();
+  if (id === 's-akun') renderAkun();
+  if (id === 's-papan') loadPapan();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => go(b.dataset.s)));
+
+function markDone(k) {
+  prog[k] = true;
+  scheduleSync();
+  try { localStorage.setItem(KEY, JSON.stringify(prog)); } catch (e) {}
+  paint();
+}
+function resetProg() {
+  prog = {};
+  scheduleSync();
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  paint();
+}
+function paint() {
+  const keys = ['ip', 'kabel', 'cli', 'ts'];
+  const n = keys.filter(k => prog[k]).length;
+  $('pbar').style.width = (n / keys.length * 100) + '%';
+  $('ptxt').textContent = n === keys.length ? 'Semua latihan selesai. Lihat nilai dan saran di tab Nilai.' : 'Latihan selesai: ' + n + '/' + keys.length;
+  keys.forEach(k => {
+    const b = $('tab-' + k);
+    b.textContent = (prog[k] ? '\u2714 ' : '') + b.dataset.l;
+  });
+}
+
+// ---------- Subnet helpers
+const mask = p => { const m = [0, 0, 0, 0]; for (let i = 0; i < p; i++) m[i >> 3] |= 128 >> (i & 7); return m.join('.'); };
+const hostsOf = p => 2 ** (32 - p) - 2;
+
+function calc() {
+  const p = Number($('pfx').value);
+  if (!(p >= 8 && p <= 30)) { $('calc').innerHTML = '<p class="bad">Masukkan prefix antara 8 dan 30.</p>'; return; }
+  $('calc').innerHTML = '<div class="stats">' +
+    '<div>Subnet mask<b>' + mask(p) + '</b></div>' +
+    '<div>Total alamat<b>' + 2 ** (32 - p) + '</b></div>' +
+    '<div>Host yang bisa dipakai<b>' + hostsOf(p) + '</b></div></div>';
+}
+
+function conv() {
+  const parts = $('ipin').value.trim().split('.');
+  const bad = parts.length !== 4 || parts.some(x => x === '' || isNaN(x) || +x < 0 || +x > 255);
+  if (bad) { $('ipout').innerHTML = '<span class="bad">Masukkan IPv4 yang valid, misalnya 192.168.1.10</span>'; return; }
+  const f = +parts[0];
+  const kelas = f < 128 ? 'A' : f < 192 ? 'B' : f < 224 ? 'C' : f < 240 ? 'D' : 'E';
+  $('ipout').innerHTML = parts.map(x => (+x).toString(2).padStart(8, '0')).join('.') +
+    '<br><span class="muted">Kelas ' + kelas + ' (berdasarkan oktet pertama)</span>';
+}
+
+// ---------- Kuis subnetting
+let Q = { i: 0, score: 0, list: [], done: false };
+function qStart() {
+  Q = { i: 0, score: 0, done: false, list: Array.from({ length: 5 }, () => ({
+    p: 24 + Math.floor(Math.random() * 7), t: Math.random() < 0.5 ? 'h' : 'm' })) };
+  qShow();
+}
+function qShow() {
+  const box = $('qbox');
+  if (Q.i >= Q.list.length) {
+    box.innerHTML = '<p>Skor kamu: <b>' + Q.score + '/5</b>. ' +
+      (Q.score >= 4 ? '<span class="ok">Latihan ini selesai.</span>' : 'Coba lagi untuk mencapai 4 jawaban benar.') +
+      '</p><div class="row"><button class="btn" onclick="qStart()">Ulangi kuis</button></div>';
+    setScore('ip', Q.score / 5 * 100);
+    if (Q.score >= 4) markDone('ip');
+    return;
+  }
+  const q = Q.list[Q.i];
+  const soal = q.t === 'h'
+    ? 'Berapa jumlah host yang bisa dipakai pada prefix /' + q.p + '?'
+    : 'Berapa subnet mask untuk prefix /' + q.p + '? Tulis dalam format 255.255.x.x';
+  box.innerHTML = '<p><b>Soal ' + (Q.i + 1) + ' dari 5:</b> ' + soal + '</p>' +
+    '<div class="row"><input id="qa" ' + (q.t === 'h' ? 'type="number"' : '') + ' aria-label="Jawaban">' +
+    '<button class="btn" onclick="qCheck()">Cek</button></div><div id="qfb" class="fb"></div>';
+  const inp = $('qa');
+  inp.focus();
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') qCheck(); });
+}
+function qCheck() {
+  if (Q.done) return;
+  const q = Q.list[Q.i];
+  const v = $('qa').value.trim();
+  const ok = q.t === 'h' ? Number(v) === hostsOf(q.p) : v === mask(q.p);
+  Q.done = true;
+  if (ok) Q.score++;
+  const ans = q.t === 'h' ? hostsOf(q.p) : mask(q.p);
+  $('qfb').innerHTML = (ok ? '<span class="ok">Benar.</span>' : '<span class="bad">Belum tepat. Jawaban: ' + ans + '</span>') +
+    ' <button class="btn line" onclick="Q.i++;Q.done=false;qShow()">Lanjut</button>';
+}
+
+// ---------- Susun kabel (T568A, T568B, straight-through, crossover, rollover)
+const WIRES = [
+  { n: 'Oranye-putih', c: '#FF8C00', s: 1 }, { n: 'Oranye', c: '#FF8C00' },
+  { n: 'Hijau-putih', c: '#2E9E44', s: 1 }, { n: 'Biru', c: '#1F5FBF' },
+  { n: 'Biru-putih', c: '#1F5FBF', s: 1 }, { n: 'Hijau', c: '#2E9E44' },
+  { n: 'Cokelat-putih', c: '#7B4A1E', s: 1 }, { n: 'Cokelat', c: '#7B4A1E' }
+];
+const SEQ_B = [0, 1, 2, 3, 4, 5, 6, 7];
+const SEQ_A = [2, 5, 0, 3, 4, 1, 6, 7];
+const SEQ_RB = [7, 6, 5, 4, 3, 2, 1, 0];
+const MODES = {
+  b: { label: 'T568B', desc: 'Satu ujung memakai urutan T568B.', ends: [SEQ_B] },
+  a: { label: 'T568A', desc: 'Satu ujung memakai urutan T568A.', ends: [SEQ_A] },
+  straight: { label: 'Straight-through', desc: 'Kedua ujung memakai T568B. Dipakai untuk PC ke switch atau switch ke router.', ends: [SEQ_B, SEQ_B] },
+  cross: { label: 'Crossover', desc: 'Ujung 1 memakai T568A dan ujung 2 memakai T568B. Dipakai untuk PC ke PC atau switch ke switch.', ends: [SEQ_A, SEQ_B] },
+  roll: { label: 'Rollover', desc: 'Ujung 2 dibalik: pin 1 bertemu pin 8, pin 2 bertemu pin 7, dan seterusnya. Dipakai untuk kabel konsol Cisco.', ends: [SEQ_B, SEQ_RB] }
+};
+const KQ = [
+  ['PC ke switch', 'straight'], ['PC ke PC', 'cross'], ['Switch ke switch', 'cross'],
+  ['Router ke switch', 'straight'], ['PC ke port konsol router', 'roll'], ['Router ke router', 'cross']
+];
+let kMode = 'straight', kEnds = [], kPicked = [], kPool = [];
+let kSusunOk = false, kQuizOk = false;
+
+function stripe(x) {
+  return x.s ? 'linear-gradient(#fff 30%, ' + x.c + ' 30%, ' + x.c + ' 70%, #fff 70%)' : x.c;
+}
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function kInit() { kSetMode('straight'); kQuizRender(); }
+function kSetMode(m) {
+  kMode = m;
+  kEnds = MODES[m].ends;
+  kPicked = kEnds.map(() => []);
+  kPool = kEnds.map(() => shuffle([0, 1, 2, 3, 4, 5, 6, 7]));
+  $('kfb').textContent = '';
+  document.querySelectorAll('#kmodes button').forEach(b => { b.className = b.dataset.m === m ? 'btn' : 'btn line'; });
+  $('kdesc').textContent = MODES[m].desc;
+  kRender();
+}
+function kRender() {
+  $('kends').innerHTML = kEnds.map((exp, e) => {
+    const seq = kPicked[e];
+    const pool = kPool[e].map(id => {
+      const w = WIRES[id];
+      return '<button class="sw" onclick="kPick(' + e + ',' + id + ')"' + (seq.includes(id) ? ' disabled' : '') +
+        '><i style="background:' + stripe(w) + '"></i>' + w.n + '</button>';
+    }).join('');
+    const chips = seq.length
+      ? seq.map((id, i) => '<span class="chip">Pin ' + (i + 1) + ': ' + WIRES[id].n + '</span>').join('')
+      : '<span class="muted">Belum ada warna dipilih.</span>';
+    const judul = kEnds.length > 1 ? 'Ujung ' + (e + 1) : 'Ujung kabel';
+    return '<h3>' + judul + ' (' + seq.length + ' dari 8)</h3>' +
+      '<div class="pool">' + pool + '</div>' +
+      '<div class="seq">' + chips + '</div>' +
+      '<div class="row"><button class="btn line" onclick="kUndo(' + e + ')">Hapus terakhir</button>' +
+      '<button class="btn line" onclick="kShuffle(' + e + ')">Acak ulang</button></div>';
+  }).join('') + '<div class="row"><button class="btn" onclick="kCheck()">Cek susunan</button></div>';
+}
+function kPick(e, id) {
+  if (kPicked[e].length < 8 && !kPicked[e].includes(id)) { kPicked[e].push(id); $('kfb').textContent = ''; kRender(); }
+}
+function kUndo(e) { kPicked[e].pop(); kRender(); }
+function kShuffle(e) { kPool[e] = shuffle([0, 1, 2, 3, 4, 5, 6, 7]); kRender(); }
+function kCheck() {
+  if (kPicked.some(p => p.length < 8)) { $('kfb').innerHTML = '<span class="bad">Lengkapi semua ujung dengan delapan pin.</span>'; return; }
+  const hasil = kEnds.map((exp, e) => kPicked[e].filter((id, i) => id === exp[i]).length);
+  const semua = hasil.every(r => r === 8);
+  if (semua) {
+    $('kfb').innerHTML = '<span class="ok">Tepat. Susunan ' + MODES[kMode].label + ' sudah benar.</span>';
+    kSusunOk = true;
+    updKabel();
+  } else {
+    const rincian = hasil.map((r, e) => (kEnds.length > 1 ? 'Ujung ' + (e + 1) + ': ' : '') + r + ' dari 8 pin benar').join('. ');
+    $('kfb').innerHTML = '<span class="bad">' + rincian + '. Periksa lagi, lalu cek ulang.</span>';
+  }
+}
+function kQuizRender() {
+  $('kq').innerHTML = KQ.map((q, i) =>
+    '<div class="qrow"><span>' + q[0] + '</span><span class="row" style="margin:0">' +
+    '<select id="kq' + i + '" aria-label="Jenis kabel untuk ' + q[0] + '">' +
+    '<option value="">Pilih jenis</option><option value="straight">Straight-through</option>' +
+    '<option value="cross">Crossover</option><option value="roll">Rollover</option></select>' +
+    '<span id="kr' + i + '" class="fb"></span></span></div>'
+  ).join('') + '<div class="row"><button class="btn" onclick="kqCheck()">Cek jawaban</button></div>';
+}
+function kqCheck() {
+  if (KQ.some((q, i) => !$('kq' + i).value)) { $('kqfb').innerHTML = '<span class="bad">Pilih jenis kabel untuk semua pasangan.</span>'; return; }
+  let benar = 0;
+  KQ.forEach((q, i) => {
+    const ok = $('kq' + i).value === q[1];
+    if (ok) benar++;
+    $('kr' + i).innerHTML = ok ? '<span class="ok">Benar</span>' : '<span class="bad">Kurang tepat</span>';
+  });
+  $('kqfb').innerHTML = '<p>Skor kamu: <b>' + benar + '/' + KQ.length + '</b>. ' +
+    (benar >= 5 ? 'Bagian ini selesai.' : 'Minimal 5 jawaban benar untuk menyelesaikan bagian ini.') + '</p>';
+  kQuizBenar = benar;
+  if (benar >= 5) kQuizOk = true;
+  updKabel();
+}
+
+// ---------- Terminal Cisco
+const CLI = [
+  { p: 'Router>', c: ['enable'], t: 'Masuk ke mode privileged EXEC.' },
+  { p: 'Router#', c: ['configure terminal', 'conf t'], t: 'Masuk ke mode konfigurasi global.' },
+  { p: 'Router(config)#', c: ['hostname r1'], t: 'Ubah nama perangkat menjadi R1.' },
+  { p: 'R1(config)#', c: ['interface gigabitethernet0/0', 'int g0/0'], t: 'Masuk ke antarmuka gigabitEthernet0/0.' },
+  { p: 'R1(config-if)#', c: ['ip address 192.168.1.1 255.255.255.0'], t: 'Beri IP 192.168.1.1 dengan subnet mask 255.255.255.0.' },
+  { p: 'R1(config-if)#', c: ['no shutdown'], t: 'Aktifkan antarmuka.' },
+  { p: 'R1(config-if)#', c: ['exit'], t: 'Kembali ke konfigurasi global.' },
+  { p: 'R1(config)#', c: ['end'], t: 'Keluar ke mode privileged EXEC.' },
+  { p: 'R1#', c: ['show ip interface brief'], t: 'Cek status antarmuka.' }
+];
+let ci = 0, cliWrong = 0;
+function cliInit() {
+  ci = 0;
+  cliWrong = 0;
+  $('term').textContent = 'Perangkat Cisco siap. Konfigurasi router dari mode user sampai selesai.\n';
+  $('cin').value = '';
+  cliTask();
+}
+function cliTask() {
+  const done = ci >= CLI.length;
+  $('task').textContent = done ? 'Semua tugas selesai.' : 'Tugas ' + (ci + 1) + ' dari ' + CLI.length + ': ' + CLI[ci].t;
+  $('cprompt').textContent = done ? '' : CLI[ci].p;
+}
+function cliRun(e) {
+  e.preventDefault();
+  if (ci >= CLI.length) return;
+  const inp = $('cin');
+  const raw = inp.value;
+  const v = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!v) return;
+  const s = CLI[ci];
+  const t = $('term');
+  t.textContent += s.p + ' ' + raw + '\n';
+  inp.value = '';
+  if (s.c.includes(v)) {
+    if (v.startsWith('show')) t.textContent += 'Interface          IP-Address     Status  Protocol\nGigabitEthernet0/0 192.168.1.1  up      up\n';
+    ci++;
+    if (ci >= CLI.length) {
+      t.textContent += 'Konfigurasi selesai. Router sudah aktif.\n';
+      setScore('cli', Math.max(0, 100 - cliWrong * 10));
+      markDone('cli');
+    }
+  } else {
+    cliWrong++;
+    t.textContent += '% Perintah tidak sesuai dengan tugas. Gunakan tombol Tampilkan perintah jika perlu.\n';
+  }
+  t.scrollTop = t.scrollHeight;
+  cliTask();
+}
+function cliHelp() {
+  if (ci >= CLI.length) return;
+  $('term').textContent += 'Petunjuk: ketik ' + CLI[ci].c[0] + '\n';
+  $('term').scrollTop = $('term').scrollHeight;
+}
+
+// ---------- Skor dan rapor
+let kQuizBenar = 0;
+function setScore(k, v) {
+  prog.sc = prog.sc || {};
+  prog.sc[k] = Math.max(prog.sc[k] || 0, Math.round(v));
+  scheduleSync();
+  try { localStorage.setItem(KEY, JSON.stringify(prog)); } catch (e) {}
+}
+function updKabel() {
+  setScore('kabel', (kSusunOk ? 50 : 0) + kQuizBenar / KQ.length * 50);
+  if (kSusunOk && kQuizOk) markDone('kabel');
+}
+
+// ---------- Troubleshooting (10 skenario, urutan soal dan pilihan jawaban diacak)
+const TS = [
+  { q: 'Komputer tidak mendapat koneksi sama sekali. Lampu link pada port switch mati. Apa langkah pertama yang paling tepat?',
+    o: ['Ganti router', 'Cek kabel dan coba port lain', 'Ubah DNS di komputer', 'Pasang ulang sistem operasi'], a: 1,
+    e: 'Masalah fisik dicek lebih dulu. Lampu link yang mati biasanya berarti kabel atau port bermasalah.' },
+  { q: 'Komputer terhubung ke jaringan, tetapi ipconfig menunjukkan alamat 169.254.10.25. Penyebab paling mungkin?',
+    o: ['DNS salah', 'Gagal mendapat IP dari DHCP', 'Website diblokir firewall', 'Kabel Cat5e terlalu panjang'], a: 1,
+    e: 'Alamat 169.254.x.x adalah APIPA. Perangkat tidak berhasil mendapat IP dari server DHCP.' },
+  { q: 'Ping ke 8.8.8.8 berhasil, tetapi www.contoh.com tidak bisa dibuka. Apa yang perlu diperiksa?',
+    o: ['Kabel UTP', 'Pengaturan DNS, misalnya dengan nslookup', 'Subnet mask', 'Kecepatan kartu jaringan'], a: 1,
+    e: 'Ping ke IP berhasil berarti jaringan dan internet berjalan. Masalahnya ada pada penerjemahan nama domain.' },
+  { q: 'Komputer bisa mengakses server di jaringan lokal, tetapi tidak bisa membuka internet. Apa yang paling mungkin salah?',
+    o: ['Kabel LAN rusak', 'Default gateway pada komputer salah atau kosong', 'Nama komputer terlalu panjang', 'Browser perlu di-update'], a: 1,
+    e: 'Akses lokal berjalan, jadi kabel dan IP dasar kemungkinan baik. Gateway yang salah membuat paket ke luar jaringan tidak sampai ke router.' },
+  { q: 'Dua komputer memakai alamat IP yang sama dan muncul pesan IP conflict. Langkah yang paling tepat?',
+    o: ['Restart switch saja', 'Ubah IP salah satu perangkat ke alamat yang belum dipakai', 'Ganti kabel dengan Cat6', 'Matikan firewall di kedua komputer'], a: 1,
+    e: 'Setiap perangkat dalam satu jaringan harus memiliki alamat IP yang unik.' },
+  { q: 'Komputer memakai IP 192.168.2.10/24 dengan default gateway 192.168.1.1. Ping ke gateway gagal walaupun lampu link menyala. Penyebab paling mungkin?',
+    o: ['Komputer berada di jaringan yang berbeda dari gateway', 'Kabel UTP terbalik urutannya', 'DNS belum diatur', 'Driver printer belum terpasang'], a: 0,
+    e: 'Dengan /24, 192.168.2.x dan 192.168.1.x berada di jaringan berbeda. Komputer harus memakai gateway yang berada di jaringan yang sama.' },
+  { q: 'Setelah kabel dan port diganti, lampu link pada PC dan switch tetap mati. Apa kemungkinan terbesarnya?',
+    o: ['Kartu jaringan (NIC) pada PC bermasalah atau nonaktif', 'Konfigurasi DNS salah', 'Subnet mask terlalu kecil', 'Browser belum diperbarui'], a: 0,
+    e: 'Lampu link menunjukkan kondisi lapisan fisik. Jika tetap mati setelah kabel dan port diganti, periksa NIC dan driver-nya.' },
+  { q: 'Sebuah kabel dibuat dengan kedua ujung memakai urutan T568B. Jenis kabel apa ini?',
+    o: ['Crossover', 'Straight-through', 'Rollover', 'Loopback'], a: 1,
+    e: 'Dua ujung dengan urutan yang sama disebut straight-through. Kabel ini biasanya dipakai untuk PC ke switch.' },
+  { q: 'Ping ke 8.8.8.8 gagal. Tracert hanya berhenti di router pertama. Apa arti hasil ini?',
+    o: ['Masalah ada setelah router pertama, misalnya di jalur ISP', 'Kabel UTP di meja rusak total', 'Subnet mask komputer pasti salah', 'Komputer belum diberi nama domain'], a: 0,
+    e: 'Tracert yang berhenti di router pertama menunjukkan jalur lokal berjalan. Jalur setelahnya yang perlu diperiksa.' },
+  { q: 'Kamu berada di mode Router(config)# dan ingin mengatur sebuah antarmuka. Perintah mana yang tepat?',
+    o: ['show ip route', 'interface gigabitethernet0/0', 'enable', 'write memory'], a: 1,
+    e: 'Perintah interface masuk ke mode konfigurasi antarmuka. Dari sana kamu bisa memberi IP dan mengaktifkan port.' }
+];
+const TS_LULUS = 7;
+let tsList = [], ti = 0, tsOk = 0, tsCorrect = 0;
+function tsStart() { tsList = shuffle(TS.slice()); ti = 0; tsOk = 0; tsShow(); }
+function tsShow() {
+  const box = $('tsbox');
+  if (ti >= tsList.length) {
+    const lulus = tsOk >= TS_LULUS;
+    setScore('ts', tsOk / tsList.length * 100);
+    box.innerHTML = '<p>Skor kamu: <b>' + tsOk + '/' + tsList.length + '</b>. ' +
+      (lulus ? '<span class="ok">Latihan ini selesai.</span>' : '<span class="bad">Minimal ' + TS_LULUS + ' jawaban benar untuk menyelesaikan latihan ini.</span>') + '</p>' +
+      '<div class="row"><button class="btn" onclick="tsStart()">Ulangi dengan soal acak</button></div>';
+    if (lulus) markDone('ts');
+    return;
+  }
+  const s = tsList[ti];
+  const urutan = shuffle(s.o.map((_, k) => k));
+  tsCorrect = urutan.indexOf(s.a);
+  box.innerHTML = '<p class="muted">Skenario ' + (ti + 1) + ' dari ' + tsList.length + '</p><p><b>' + s.q + '</b></p>' +
+    urutan.map((k, i) => '<button class="opt" onclick="tsAns(' + i + ')">' + s.o[k] + '</button>').join('') +
+    '<div id="tsfb" class="fb"></div>';
+}
+function tsAns(i) {
+  const s = tsList[ti];
+  const good = i === tsCorrect;
+  if (good) tsOk++;
+  document.querySelectorAll('#tsbox .opt').forEach((b, j) => {
+    b.disabled = true;
+    if (j === tsCorrect) b.classList.add('right');
+    else if (j === i) b.classList.add('wrong');
+  });
+  $('tsfb').innerHTML = (good ? '<span class="ok">Tepat.</span> ' : '<span class="bad">Kurang tepat.</span> ') +
+    '<span style="font-weight:400">' + s.e + '</span> <button class="btn line" onclick="ti++;tsShow()">Lanjut</button>';
+}
+
+// ---------- Rapor nilai dan saran belajar
+const MODUL = [
+  { k: 'ip', n: 'Latihan IP (subnetting)' },
+  { k: 'kabel', n: 'Kabel dan konektor' },
+  { k: 'cli', n: 'Terminal Cisco' },
+  { k: 'ts', n: 'Troubleshooting' }
+];
+const SARAN = {
+  ip: 'Kerjakan 10 soal subnetting setiap hari, mulai dari /24 sampai /30. Hafalkan rumus 2^(32 - prefix) - 2 dan hitung blok dengan 256 dikurangi oktet subnet mask.',
+  kabel: 'Buat kabel fisik dan hafalkan urutan T568B serta T568A. Ingat aturannya: straight-through untuk PC ke switch, crossover untuk PC ke PC atau switch ke switch.',
+  cli: 'Latihan di Cisco Packet Tracer setiap minggu. Hafalkan mode prompt (>, #, dan config) serta urutan perintah dasar: enable, configure terminal, interface, ip address, dan no shutdown.',
+  ts: 'Periksa gangguan secara bertahap: kabel dan lampu, IP dan gateway, ping ke IP, lalu DNS. Catat setiap gangguan yang kamu temui di jurnal PKL.'
+};
+function predikat(n) {
+  if (n >= 85) return 'Sangat siap untuk PKL';
+  if (n >= 70) return 'Siap, dengan beberapa penguatan';
+  if (n >= 50) return 'Perlu latihan tambahan';
+  return 'Belum siap, ulangi materi dasar';
+}
+function renderRapor() {
+  const el = $('rapor');
+  const sc = prog.sc || {};
+  if (!MODUL.every(m => prog[m.k])) {
+    const sisa = MODUL.filter(m => !prog[m.k]).map(m => m.n);
+    el.innerHTML = '<h2>Nilai kemampuan</h2>' +
+      '<p class="muted">Nilai dan saran belajar muncul setelah keempat latihan selesai.</p>' +
+      '<p>Belum selesai: <b>' + sisa.join(', ') + '</b>.</p>';
+    return;
+  }
+  const nilai = m => sc[m.k] || 0;
+  const total = Math.round(MODUL.reduce((a, m) => a + nilai(m), 0) / MODUL.length);
+  const rows = MODUL.map(m =>
+    '<tr><td>' + m.n + '</td><td class="mono">' + nilai(m) + '</td><td>' + (nilai(m) >= 75 ? 'Kuat' : 'Perlu diperkuat') + '</td></tr>').join('');
+  const lemah = MODUL.filter(m => nilai(m) < 75).sort((a, b) => nilai(a) - nilai(b));
+  const saran = lemah.length
+    ? lemah.map(m => '<p><b>' + m.n + ':</b> ' + SARAN[m.k] + '</p>').join('')
+    : '<p>Semua modul sudah kuat. Pertahankan dengan mengulang latihan secara berkala.</p>';
+  el.innerHTML = '<h2>Nilai kemampuan</h2>' +
+    '<div class="stats"><div>Nilai akhir<b>' + total + '</b></div>' +
+    '<div>Predikat<b style="font-family:var(--sans);font-size:16px">' + predikat(total) + '</b></div></div>' +
+    '<table><tr><th>Modul</th><th>Nilai</th><th>Status</th></tr>' + rows + '</table>' +
+    '<h2 style="margin-top:20px">Saran belajar</h2>' + saran +
+    '<h3>Kebiasaan yang disarankan</h3>' +
+    '<p>Belajar 30 menit setiap hari lebih efektif daripada belajar panjang sekali seminggu. Ulangi latihan yang nilainya di bawah 75 sampai benar semua. Bawa catatan dari setiap modul ke tempat PKL dan tanyakan kepada pembimbing hal yang belum kamu pahami.</p>' +
+    '<div class="row"><button class="btn line" onclick="resetProg()">Mulai dari awal</button></div>';
+}
+
+// ---------- Akun: masuk lewat claude.ai, profil, dan sinkronisasi progres
+const PROFIL_KEY = 'tjkt-lab-profil';
+let DB = null, UID = null, syncTimer = null;
+let PROFIL = { nama: '', sekolah: '', tujuan: '' };
+try { PROFIL = Object.assign(PROFIL, JSON.parse(localStorage.getItem(PROFIL_KEY) || '{}')); } catch (e) {}
+
+function setStatus(teks, kelas) {
+  const el = $('akun-status');
+  if (el) { el.className = 'fb ' + (kelas || ''); el.textContent = teks; }
+}
+function akunInfo(mode) {
+  const teks = {
+    local: 'Kamu belum masuk dengan akun claude.ai. Progres disimpan di browser ini. Buka halaman ini saat sudah masuk untuk menyimpan akun dan membukanya di perangkat lain.',
+    sync: 'Kamu sudah masuk. Progres dan profil disinkronkan ke akun kamu.',
+    gagal: 'Akun belum bisa disinkronkan. Progres tetap tersimpan di browser ini.'
+  };
+  $('akun-info').textContent = teks[mode] || teks.local;
+}
+function renderAkun() {
+  $('pNama').value = PROFIL.nama || '';
+  $('pSekolah').value = PROFIL.sekolah || '';
+  $('pTujuan').value = PROFIL.tujuan || '';
+  $('pPapan').value = PROFIL.namaPapan || '';
+  $('pTampil').checked = !!PROFIL.tampil;
+  const sc = prog.sc || {};
+  $('akun-progres').innerHTML = '<table><tr><th>Modul</th><th>Status</th><th>Nilai</th></tr>' +
+    MODUL.map(m => '<tr><td>' + m.n + '</td><td>' + (prog[m.k] ? 'Selesai' : 'Belum selesai') +
+      '</td><td class="mono">' + (sc[m.k] || 0) + '</td></tr>').join('') + '</table>';
+}
+function saveProfil() {
+  PROFIL = { nama: $('pNama').value.trim(), sekolah: $('pSekolah').value.trim(), tujuan: $('pTujuan').value.trim(), namaPapan: $('pPapan').value.trim(), tampil: $('pTampil').checked };
+  try { localStorage.setItem(PROFIL_KEY, JSON.stringify(PROFIL)); } catch (e) {}
+  scheduleSync();
+  setStatus('Profil disimpan.', 'ok');
+}
+function mergeRemote(d) {
+  const rp = d.prog || {}, rs = d.sc || {};
+  ['ip', 'kabel', 'cli', 'ts'].forEach(k => { if (rp[k]) prog[k] = true; });
+  prog.sc = prog.sc || {};
+  Object.keys(rs).forEach(k => { prog.sc[k] = Math.max(prog.sc[k] || 0, rs[k] || 0); });
+  if (d.profil) PROFIL = Object.assign({ nama: '', sekolah: '', tujuan: '' }, d.profil);
+  try {
+    localStorage.setItem(KEY, JSON.stringify(prog));
+    localStorage.setItem(PROFIL_KEY, JSON.stringify(PROFIL));
+  } catch (e) {}
+  paint();
+}
+function scheduleSync() {
+  if (!DB || !UID) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(saveRemote, 800);
+}
+async function savePapan() {
+  const total = Math.round(MODUL.reduce((a, m) => a + ((prog.sc || {})[m.k] || 0), 0) / MODUL.length);
+  const lengkap = MODUL.every(m => prog[m.k]);
+  try {
+    await DB.doc('papan/' + UID).set({
+      nama: PROFIL.namaPapan || 'Peserta',
+      nilai: total,
+      predikat: predikat(total),
+      tampil: !!PROFIL.tampil && lengkap,
+      diperbarui: new Date().toISOString()
+    });
+    return true;
+  } catch (e) { return false; }
+}
+const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function loadPapan() {
+  const list = $('papan-list');
+  if (!DB) {
+    $('papan-status').textContent = 'Masuk dengan akun claude.ai untuk melihat papan skor.';
+    list.innerHTML = '';
+    return;
+  }
+  $('papan-status').textContent = 'Memuat papan skor...';
+  try {
+    const snap = await DB.collection('papan').get();
+    const rows = snap.docs
+      .map(d => Object.assign({ id: d.id }, d.data() || {}))
+      .filter(r => r.tampil && r.nilai >= 75)
+      .sort((a, b) => b.nilai - a.nilai);
+    $('papan-status').textContent = rows.length ? '' : 'Belum ada peserta dengan nilai 75 ke atas yang tampil di papan skor.';
+    list.innerHTML = rows.length
+      ? '<table><tr><th>No</th><th>Nama</th><th>Nilai</th><th>Predikat</th></tr>' +
+        rows.slice(0, 20).map((r, i) => '<tr' + (r.id === UID ? ' style="font-weight:700"' : '') + '><td class="mono">' + (i + 1) +
+          '</td><td>' + esc(r.nama) + (r.id === UID ? ' (kamu)' : '') + '</td><td class="mono">' + esc(r.nilai) +
+          '</td><td>' + esc(r.predikat || predikat(r.nilai)) + '</td></tr>').join('') + '</table>'
+      : '';
+  } catch (e) {
+    $('papan-status').textContent = 'Papan skor belum bisa dimuat. Coba lagi nanti.';
+    list.innerHTML = '';
+  }
+}
+async function saveRemote() {
+  try {
+    await DB.doc('data/users/' + UID + '/akun').set({
+      prog: { ip: !!prog.ip, kabel: !!prog.kabel, cli: !!prog.cli, ts: !!prog.ts },
+      sc: prog.sc || {},
+      profil: PROFIL,
+      diperbarui: new Date().toISOString()
+    });
+    const papanOk = await savePapan();
+    setStatus(papanOk ? 'Tersimpan ke akun.' : 'Progres tersimpan, tetapi papan skor belum bisa diperbarui.', papanOk ? 'ok' : 'bad');
+  } catch (e) {
+    setStatus('Gagal menyimpan ke akun. Progres tetap tersimpan di browser ini.', 'bad');
+  }
+}
+async function initAkun() {
+  const C = window.claude;
+  try {
+    const user = C ? await C.use('user') : null;
+    UID = user ? await user.id() : null;
+    DB = C && UID ? await C.use('db') : null;
+  } catch (e) { UID = null; DB = null; }
+  if (!DB || !UID) { akunInfo('local'); return; }
+  try {
+    const snap = await DB.doc('data/users/' + UID + '/akun').get();
+    if (snap.exists) mergeRemote(snap.data() || {});
+    akunInfo('sync');
+    scheduleSync();
+  } catch (e) {
+    akunInfo('gagal');
+  }
+}
+
+go('s-beranda');
+paint();
+kInit();
+cliInit();
+tsStart();
+initAkun();
+</script>
+</body>
+</html>
